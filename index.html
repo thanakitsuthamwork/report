@@ -4,23 +4,46 @@
   <meta charset="UTF-8">
   <title>📌 รายการแจ้งยอดการโอนเงิน</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-    h2 { text-align: center; color: #007bff; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-    th { background: #007bff; color: #fff; }
-    tr:nth-child(even) { background: #f2f2f2; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #007bff;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 95%;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
   </style>
 </head>
 <body>
   <h2>📌 รายการแจ้งยอดการโอนเงิน</h2>
-  <table id="transferTable">
+  <table id="data-table">
     <thead>
       <tr>
         <th>วันที่</th>
         <th>ชื่อ</th>
-        <th>ธนาคาร</th>
-        <th>จำนวนเงิน</th>
+        <th>จำนวนเงิน</th> <!-- ✅ แก้ตำแหน่ง -->
+        <th>ธนาคาร</th>    <!-- ✅ แก้ตำแหน่ง -->
         <th>สถานะ</th>
       </tr>
     </thead>
@@ -28,34 +51,26 @@
   </table>
 
   <script>
-    // 🔹 Google Sheet ที่คุณให้มา
-    const sheetID = "15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw";
-    const sheetName = "Sheet1";  // ถ้าแท็บชื่ออื่น ให้เปลี่ยนชื่อนี้ตามแท็บในชีท
-    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+    const sheetID = "15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw"; // ของคุณ
+    const sheetName = "Sheet1"; // ถ้าเปลี่ยนชื่อชีท ต้องแก้ตรงนี้
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}`;
 
     fetch(url)
       .then(res => res.text())
-      .then(data => {
-        // ตัด header ของ JSON ที่ google ใส่มา
-        const json = JSON.parse(data.substr(47).slice(0, -2));
-        const rows = json.table.rows;
-        if (!rows || rows.length === 0) {
-          throw new Error("ไม่มีข้อมูลในชีทหรือชื่อแท็บผิด");
-        }
-        let html = "";
+      .then(rep => {
+        const data = JSON.parse(rep.substr(47).slice(0, -2));
+        const table = document.getElementById("data-table").getElementsByTagName("tbody")[0];
+        let rows = data.table.rows;
+
         rows.forEach(row => {
-          html += "<tr>";
+          let tr = document.createElement("tr");
           row.c.forEach(cell => {
-            html += `<td>${cell && cell.v !== null ? cell.v : ""}</td>`;
+            let td = document.createElement("td");
+            td.textContent = cell ? cell.v : "";
+            tr.appendChild(td);
           });
-          html += "</tr>";
+          table.appendChild(tr);
         });
-        document.querySelector("#transferTable tbody").innerHTML = html;
-      })
-      .catch(err => {
-        console.error("Error fetching sheet data:", err);
-        document.querySelector("#transferTable tbody").innerHTML =
-          `<tr><td colspan="5" style="color:red;">ไม่สามารถดึงข้อมูลได้ — ${err.message}</td></tr>`;
       });
   </script>
 </body>
