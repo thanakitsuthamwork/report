@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แจ้งยอดการโอนเงิน</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background: #007bff; color: #fff; }
+  </style>
+</head>
+<body>
+  <h2>📌 รายการแจ้งยอดการโอนเงิน</h2>
+  <table id="transferTable">
+    <thead>
+      <tr>
+        <th>วันที่</th>
+        <th>ชื่อ</th>
+        <th>ธนาคาร</th>
+        <th>จำนวนเงิน</th>
+        <th>สถานะ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetID = "YOUR_SHEET_ID"; 
+    const sheetName = "Sheet1"; 
+    const url = `https://docs.google.com/spreadsheets/d/${15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw}/gviz/tq?tqx=out:json&sheet=${โอนเงิน}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(data => {
+        const json = JSON.parse(data.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        let html = "";
+        rows.forEach(row => {
+          html += "<tr>";
+          row.c.forEach(cell => {
+            html += `<td>${cell ? cell.v : ""}</td>`;
+          });
+          html += "</tr>";
+        });
+        document.querySelector("#transferTable tbody").innerHTML = html;
+      });
+  </script>
+</body>
+</html>
