@@ -2,12 +2,14 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>แจ้งยอดการโอนเงิน</title>
+  <title>📌 รายการแจ้งยอดการโอนเงิน</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    h2 { text-align: center; color: #007bff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
     th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
     th { background: #007bff; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
   </style>
 </head>
 <body>
@@ -26,24 +28,34 @@
   </table>
 
   <script>
-    const sheetID = "15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw"; 
-    const sheetName = "Sheet1"; 
-    const url = `https://docs.google.com/spreadsheets/d/${15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw}/gviz/tq?tqx=out:json&sheet=${โอนเงิน}`;
+    // 🔹 Google Sheet ที่คุณให้มา
+    const sheetID = "15EHm7u85zTAToRMK2n12kDHH2nj7BBai7oE0w4QYCnw";
+    const sheetName = "Sheet1";  // ถ้าแท็บชื่ออื่น ให้เปลี่ยนชื่อนี้ตามแท็บในชีท
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
     fetch(url)
       .then(res => res.text())
       .then(data => {
+        // ตัด header ของ JSON ที่ google ใส่มา
         const json = JSON.parse(data.substr(47).slice(0, -2));
         const rows = json.table.rows;
+        if (!rows || rows.length === 0) {
+          throw new Error("ไม่มีข้อมูลในชีทหรือชื่อแท็บผิด");
+        }
         let html = "";
         rows.forEach(row => {
           html += "<tr>";
           row.c.forEach(cell => {
-            html += `<td>${cell ? cell.v : ""}</td>`;
+            html += `<td>${cell && cell.v !== null ? cell.v : ""}</td>`;
           });
           html += "</tr>";
         });
         document.querySelector("#transferTable tbody").innerHTML = html;
+      })
+      .catch(err => {
+        console.error("Error fetching sheet data:", err);
+        document.querySelector("#transferTable tbody").innerHTML =
+          `<tr><td colspan="5" style="color:red;">ไม่สามารถดึงข้อมูลได้ — ${err.message}</td></tr>`;
       });
   </script>
 </body>
